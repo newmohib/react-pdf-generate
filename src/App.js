@@ -1,6 +1,6 @@
 
 import React from 'react';
-import {PDFDownloadLink, Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import {usePDF, Page, Text, View, Document, StyleSheet, BlobProvider, PDFDownloadLink } from '@react-pdf/renderer';
 
 // Data to render in the table
 const data = [
@@ -8,6 +8,12 @@ const data = [
   { id: 2, firstName: 'Jacob', lastName: 'Thornton', handle: '@fat' },
   { id: 3, firstName: 'Larry', lastName: 'the Bird', handle: '@twitter' },
 ];
+for (let i = 0; i < 100; i++) {
+  data.push(
+    { id: i, firstName: 'Mark', lastName: 'Otto', handle: '@mdo' }
+  )
+  
+}
 
 // Create a stylesheet
 const styles = StyleSheet.create({
@@ -62,8 +68,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Define the component to render the PDF
-const MyDocument = () => (
+const MyDoc = (
   <Document id='145866'>
     <Page size="A4" style={styles.page} >
       <View style={styles.table}>
@@ -94,16 +99,27 @@ const MyDocument = () => (
   </Document>
 );
 
+const App = () => {
+  const [instance, updateInstance] = usePDF({ document: MyDoc });
+  console.log(instance)
 
+  if (instance.loading) return <div>Loading ...</div>
 
-const App = () => (
-  <div>
-    <PDFDownloadLink document={<MyDocument />} fileName="somename.pdf">
-      {({ blob, url, loading, error }) =>
-        loading ? 'Loading document...' : 'Download now!'
-      }
-    </PDFDownloadLink>
-  </div>
-);
+  if (instance.error) return <div>Something went wrong: {instance.error}</div>
+
+  return (
+    <a href={instance.url} download="test.pdf">
+      Download
+    </a>
+
+  //   <div>
+  //   <PDFDownloadLink document={<MyDoc />} fileName="somename.pdf">
+  //     {({ blob, url, loading, error }) =>
+  //       loading ? 'Loading document...' : 'Download now!'
+  //     }
+  //   </PDFDownloadLink>
+  // </div>
+  );
+}
 
 export default App;
